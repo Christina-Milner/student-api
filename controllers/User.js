@@ -23,9 +23,10 @@ module.exports = {
     },
 //login method
     login: async (req,res,next) => {
+        const username = req.body.username
         try {
             if(!req.body.username || !req.body.password) {
-                return next(ApiError.NotFound("Please input values."))
+                return res.status(400).json("Please input values.");
             }
         const user = await User.findOne({username: username});
         if (user) {
@@ -33,10 +34,10 @@ module.exports = {
             const token = jwt.sign({id:user._id, username: username},"collo");
             if (isMatch && token) {
                 const {password, ...otherDetails} = user._doc;
-                res.status(200).json({user:{...otherDetails,token}});
+                return res.status(200).json({user:{...otherDetails,token}});
             }
         }
-        return res.status(400).json("Invalid username or password.");
+        return res.status(400).json("Invalid username or password."); 
         } catch (error) {
         next(error)
         };
